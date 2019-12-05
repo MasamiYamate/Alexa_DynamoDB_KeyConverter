@@ -25,12 +25,8 @@ async function convertTask () {
 		}
 
 		const scanResponse = await dynamodb.scan(searchParm).promise();
-		
-		if (!'Items' in scanResponse) {
-			throw "Response Data Items Not Found";
-		}
 
-		const items = scanResponse.Items;
+		const items = scanResponse;
 		const date = new Date();
 		const fileName = './output/' + conf.alexaSdkTableName + '-' + date.toISOString() + '.json';
 
