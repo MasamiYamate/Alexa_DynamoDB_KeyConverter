@@ -1,22 +1,13 @@
 'use strict';
 
 const aws = require('aws-sdk');
-
-//Change your aws data.
-const regionName = "regionName";
-const accessKeyId = "your aws access key";
-const secretAccessKey = "your aws secret access key";
-
-//DynamoDB Table Name used in alexa-sdk
-const alexaSdkTableName = "Table Name";
-
-//DynamoDB table name used in ask-sdk (v2)
-const askSdkTableName = "Table Name";
+const fs = require('fs');
+const conf = require('config');
 
 aws.config.update({
-	"accessKeyId": accessKeyId,
-	"secretAccessKey": secretAccessKey,
-	"region": regionName
+	"accessKeyId": conf.accessKeyId,
+	"secretAccessKey": conf.secretAccessKey,
+	"region": conf.regionName
 });
 
 var dynamodb = new aws.DynamoDB();
@@ -24,10 +15,12 @@ var dynamodb = new aws.DynamoDB();
 
 async function convertTask () {
 
+	console.log(conf);
+
 	try {
 
 		const searchParm = {
-			TableName: alexaSdkTableName,
+			TableName: conf.alexaSdkTableName,
 			Select: "ALL_ATTRIBUTES"
 		}
 
@@ -37,20 +30,11 @@ async function convertTask () {
 			throw "Response Data Items Not Found";
 		}
 
-		const putItems = scanResponse.Items.map (function(item) {
-			return {
-				'id': item['userId'],
-				'attributes': item['mapAttr']
-			}
-		});
+		const items = scanResponse.Items;
+		const date = new Date();
+		const fileName = './output/' + conf.alexaSdkTableName + '-' + date.toISOString() + '.json';
 
-		for (var no in putItems) {
-			const putParm = {
-				'TableName': askSdkTableName,
-				'Item': putItems[no]
-			}
-			await dynamodb.putItem(putParm).promise();
-		}
+		fs.writeFileSync(fileName, JSON.stringify(items));
 
 		console.log("Task Fin");
 

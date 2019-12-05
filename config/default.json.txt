@@ -1,0 +1,6 @@
+{
+    "regionName": "利用するときは必要項目を記入して、.txtと取り払いjsonにする",
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "alexaSdkTableName": ""
+}
